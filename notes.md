@@ -77,6 +77,7 @@ server {
 brew install nginx
 cd /usr/local/etc/nginx # to check the content
 nginx # to run nginx => accessed on localhost:8080
+nginx -s reload # to reload nginx server
 ```
 
 ### 2.2 Nginx File
@@ -86,9 +87,9 @@ nginx # to run nginx => accessed on localhost:8080
 user www-data;
 worker_processes auto;
 
-# event handling
-events {
-    worker_connections 1024;
+# event handling context
+events { # context
+    worker_connections 1024; # directive
 }
 
 # http config
@@ -181,3 +182,23 @@ server {
     server_name example.com;
 }
 ```
+
+##### 5. Location context
+
+- Defines how Nginx handles specific URL patterns
+- Used inside `server`
+
+```
+location / {
+    root /var/www/html;
+    index index.html
+}
+```
+
+#### 2.3.4 Syntax rules
+
+- (`;`): end of each directive
+- (`{}`): enclose blocks
+- (`#`): commends. ignored by Nginx
+
+## 3. Serving static content
