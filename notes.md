@@ -203,6 +203,8 @@ location / {
 
 ## 3. Nginx CLI commands
 
+- You might need to add `sudo` before the commands since Nginx runs as a system process
+
 ```bash
 # Basic commands
 nginx # starts nginx with default config
@@ -229,3 +231,43 @@ nginx -t && nginx -s reload # test config and restart if valid
 ```
 
 ## 4. Serving static content
+
+1. Create project folder
+2. Add static files
+3. Create custom `nginx.conf`
+
+```nginx
+# example
+worker_processes 1;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    server {
+        listen 8080; the port where Nginx will serve content
+
+        root /path/to/folder;
+        index index.html;
+
+        location / {
+            try_files $uri $uri/ /index.html
+        }
+    }
+}
+```
+
+4. Run custom `nginx.conf`
+
+- Nginx doesn't resolve relative paths based on the current working directory
+- It expects a fully qualified **absolute path** to the config file
+
+```
+nginx -c absolute/path/to/custom/nginx.conf # run
+nginx -c absolute/path/to/custom/nginx.conf -s stop # stop
+
+# tip: dynamically getting the absolute path with `$(pwd)`
+nginx -c $(pwd)/nginx.conf
+nginx -c $(pwd)/nginx.conf -s stop
+```
