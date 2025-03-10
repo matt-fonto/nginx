@@ -215,7 +215,7 @@ nginx -s stop && nginx # restarts it
 nginx -c /path/to/nginx.conf # run nginx with custom config
 
 # debugging
-px aux | grep nginx # check if it's running
+ps aux | grep nginx # check if it's running
 nginx -t # check for errors
 
 # view logs (errors and access)
@@ -270,4 +270,45 @@ nginx -c absolute/path/to/custom/nginx.conf -s stop # stop
 # tip: dynamically getting the absolute path with `$(pwd)`
 nginx -c $(pwd)/nginx.conf
 nginx -c $(pwd)/nginx.conf -s stop
+```
+
+## 5. Serving static content inside a container
+
+1. Follow the steps above up to creating the `nginx.conf`
+2. Create dockerfile
+
+```
+nano Dockerfile
+```
+
+3. Setup dockerfile
+
+```yml
+# official image nginx
+FROM nginx:latest
+
+# copy custom config to Nginx
+COPY nginx.conf /etc/nginx/nginx.conf
+
+# copy static files to the Nginx web root
+COPY public /usr/share/nginx/html
+
+EXPOSE 80
+
+CMD ["nginx", "-g", "daemon off;"]
+```
+
+4. Setup docker-compose
+
+```yml
+services:
+  nginx:
+    build: .
+    container_name: nginx-container
+    ports:
+      - "8080:80"
+    restart: unless-stopped
+    volumes:
+      - ./public:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf
 ```
