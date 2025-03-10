@@ -201,4 +201,31 @@ location / {
 - (`{}`): enclose blocks
 - (`#`): commends. ignored by Nginx
 
-## 3. Serving static content
+## 3. Nginx CLI commands
+
+```bash
+# Basic commands
+nginx # starts nginx with default config
+nginx -s stop # kills its processes
+nginx -s quit # shutdowm
+nginx -s reload # applies config changes without downtime
+nginx -s stop && nginx # restarts it
+nginx -c /path/to/nginx.conf # run nginx with custom config
+
+# debugging
+px aux | grep nginx # check if it's running
+nginx -t # check for errors
+
+# view logs (errors and access)
+tail -f /var/log/nginx/error.log
+tail -f /var/log/nginx/access.log
+
+# process management
+pgrep nginx # find nginx process ID (PID)
+kill -QUIT <PID> # kill Nginx process
+
+# others
+nginx -t && nginx -s reload # test config and restart if valid
+```
+
+## 4. Serving static content
