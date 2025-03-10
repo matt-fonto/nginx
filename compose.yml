@@ -3,8 +3,9 @@ services:
     build: .
     container_name: nginx-container
     ports:
+      # maps localhost:8080 to container:80
       - "8080:80"
     restart: unless-stopped
     volumes:
-      - ./public:/usr/share/nginx/html:ro
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./public:/usr/share/nginx/html
+      - ./nginx.conf:/etc/nginx/nginx.conf

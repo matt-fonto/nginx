@@ -274,7 +274,30 @@ nginx -c $(pwd)/nginx.conf -s stop
 
 ## 5. Serving static content inside a container
 
-1. Follow the steps above up to creating the `nginx.conf`
+1. Create `nginx.conf`
+
+```
+worker_processes 1;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    server {
+        listen 80;  # nginx runs inside the container on port 80
+
+        root /usr/share/nginx/html;  # Change this to your actual path
+        index index.html;
+
+        location / {
+            try_files $uri $uri/ /index.html;
+        }
+    }
+}
+
+```
+
 2. Create dockerfile
 
 ```
@@ -283,7 +306,7 @@ nano Dockerfile
 
 3. Setup dockerfile
 
-```yml
+```Dockerfile
 # official image nginx
 FROM nginx:latest
 
@@ -311,4 +334,11 @@ services:
     volumes:
       - ./public:/usr/share/nginx/html
       - ./nginx.conf:/etc/nginx/nginx.conf
+```
+
+5. Manage docker-compose
+
+```
+docker-compose down
+docker-compose up --build -d
 ```
