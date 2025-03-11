@@ -1,11 +1,24 @@
 services:
   nginx:
-    build: .
-    container_name: nginx-container
-    ports:
-      # maps localhost:8080 to container:80
-      - "8080:80"
-    restart: unless-stopped
+    image: nginx:latest
+    container_name: nginx-load-balancer
     volumes:
-      - ./public:/usr/share/nginx/html
-      - ./nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend1
+      - backend2
+
+  # simulating backends
+  backend1:
+    image: nginx:alpine
+    container_name: backend1
+    ports:
+      - "5001:5000"
+
+  backend2:
+    image: nginx:alpine
+    container_name: backend2
+    ports:
+      - "5002:5000"

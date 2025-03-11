@@ -343,4 +343,80 @@ docker-compose down
 docker-compose up --build -d
 ```
 
-## 6. Mime Types
+## 6. Nginx as Load Balancer
+
+Nginx acts as a reverse proxy and load balancer by distributing incoming client requests to multiple backend servers
+
+### Terminology
+
+- Upstream: block defines a group of backend servers that Nginx will distribute traffice to
+
+```
+# backend_servers: a name given to this group
+
+upstream backend_servers {
+    server backend1:5000; # each server is a backend
+    server backend2:5000;
+}
+```
+
+### How to do it?
+
+1. Setup `nginx.conf`
+
+```
+worker_processes 1;
+
+events {
+    worker_connections 1024;
+}
+
+http {
+    # define the backend servers
+    upstream backend_servers {
+        server backend1:80;
+        server backend2:80;
+    }
+
+    # define the frontend server (Load balancer)
+    server {
+        listen 80;
+
+        location / {
+            proxy_pass http://backend_servers; # forward requests to the backend group
+            proxy_set_header Host $host; # preserve the original host header
+            proxy_set_header X-Real-IP $remote_addr; # pass the client's read IP
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for; # support proxy chaining
+        }
+    }
+}
+```
+
+2. Setup `docker-compose.yml`
+
+```yml
+services:
+  nginx:
+    image: nginx:latest
+    container_name: nginx-load-balancer
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend1
+      - backend2
+
+  # simulating backends
+  backend1:
+    image: nginx:alpine
+    container_name: backend1
+    ports:
+      - "5001:5000"
+
+  backend2:
+    image: nginx:alpine
+    container_name: backend2
+    ports:
+      - "5002:5000"
+```
