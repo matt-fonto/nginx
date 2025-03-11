@@ -342,3 +342,5 @@ services:
 docker-compose down
 docker-compose up --build -d
 ```
+
+## 6. Mime Types
